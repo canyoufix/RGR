@@ -176,7 +176,7 @@ void readFromFile(const int size, Detail* object, string fileName) {
 		cout << "\t ÄÀÍÍÛÅ ÈÇ ÔÀÉËÀ ÏÎËÓ×ÅÍÛ!" << endl;
 	}
 	else {
-		cout << "\tÔÀÉË ÏÓÑÒ!" << endl;
+		cout << "\tÔÀÉË ÏÓÑÒ, ËÈÁÎ ÔÀÉËÀ ÍÅ ÑÓÙÅÑÒÂÓÅÒ!" << endl;
 	}
 }
 
@@ -191,13 +191,22 @@ bool isFileEmpty(string fileName)
 	int length;
 	ifstream filestr;
 
-	filestr.open(fileName, ios::binary); 
-	filestr.seekg(0, ios::end);				//Put cursor of end file
-	length = filestr.tellg();				//Find position of cursor
-	filestr.close();
+	filestr.exceptions(ifstream::badbit | ifstream::failbit);
 
-	if (length == 0) {
+	try
+	{
+		filestr.open(fileName, ios::binary);
+		filestr.seekg(0, ios::end);				//Put cursor of end file
+		length = filestr.tellg();				//Find position of cursor
+		filestr.close();
+
+		if (length == 0) {
+			return true;
+		}
+		else return false;
+	}
+	catch (const std::exception&)
+	{
 		return true;
 	}
-	else return false;
 }
