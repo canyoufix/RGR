@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <windows.h>
 
 using namespace std;
 
@@ -17,25 +18,27 @@ void outArr(const int size, Detail* object);
 void sortStr(const int size, Detail* object);
 void saveInFile(const int size, Detail* object, string fileName);
 void readFromFile(const int size, Detail* object, string fileName);
+void clearFile(string fileName);
+bool isFileEmpty(string fileName);
 
 
-
-void menu(int key, const int size, Detail* object, string fileName) 
+void menu(int *key, const int size, Detail* object, string fileName) 
 {
 	cout << endl << "Выберите пункт меню:" << endl;
-	cout << "   1.Ввод записи с произвольным номером" << endl;
-	cout << "   2.Вывод записи с заданным номером" << endl;
-	cout << "   3.Сортировка записей по заданному полю в порядке убывания" << endl;
+	cout << "   1.Ввод записей" << endl;
+	cout << "   2.Вывод записей" << endl;
+	cout << "   3.Сортировка записей (по весу) порядке убывания" << endl;
 	cout << "   4.Вывод всех записей в отсортированном порядке на экран" << endl;
 	cout << "   5.Сохранение всех записей в файле" << endl;
 	cout << "   6.Чтение записей из файла" << endl;
-	cout << "   Для выхода введите 0" << endl;
+	cout << "   7.Очистить файл" << endl;
+	cout << "Для выхода введите 0" << endl;
 
 	cout << "Пункт: ";
-	cin >> key;
+	cin >> *key;
 	cout << endl;
 
-	switch (key) {
+	switch (*key) {
 		case 1: 
 			inputArr(size, object);
 			break;
@@ -61,62 +64,71 @@ void menu(int key, const int size, Detail* object, string fileName)
 			readFromFile(size, object, fileName);
 			break;
 
+		case 7:
+			clearFile(fileName);
+			break;
+
 		case 0:
 			exit;
 	}
 }
 
 void main() {
-	int key = 0;
-	setlocale(LC_ALL, "ru");
+	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
+
+	int key = -1;
 	const int size = 3;
 	string fileName = "myFile.txt";
 
 	Detail object[size];
-	
-	while (true) {
-		menu(key, size, object, fileName);
-	}
-	
+
+	while (key != 0)
+		menu(&key, size, object, fileName);
 }
 
-void inputArr(const int size, Detail *object) {
-	cout << "___\t" << "___\t" << "___\t" << endl;
+void inputArr(const int size, Detail *object) 
+{
+	cout << endl << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+	cout  << "Введите детали:" << endl;
+
 	for (int i = 0; i < size; i++)
 	{
-		cout << endl << "Наименование детали: ";
+		cout << "\tНаименование детали: ";
 		cin >> object[i].Name;
 
-		cout << "Количество: ";
+		cout << "\tКоличество: ";
 		cin >> object[i].Amount;
 
-		cout << "Вес: ";
+		cout << "\tВес: ";
 		cin >> object[i].Weight;
-	}
-	cout << "___\t" << "___\t" << "___\t" << endl;
-	cout << "Данные введены!" << endl;
-}
-
-void outArr(const int size, Detail* object) {
-	setlocale(LC_ALL, "ru");
-	cout << endl << endl << '\t';
-	cout << "... ... Вывод деталей: ... ..." << endl;
-	for (int i = 0; i < size; i++) 
-	{
-		cout << "Наименование детали:  " << object[i].Name << endl;
-		cout << "Количество: " << object[i].Amount << endl;
-		cout << "Вес: " << object[i].Weight << endl;
 		cout << endl;
 	}
-	cout << "Данные выведены!" << endl;
+
+	cout << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
 }
 
-void sortStr(const int size, Detail* object) {
+void outArr(const int size, Detail* object) 
+{
+	cout << endl << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+	cout << "Вывод деталей:" << endl;
 
-	Detail* pObject[3];
-	for (int i = 0; i < size; i++) {
-		pObject[i] = (object + i);
+	for (int i = 0; i < size; i++) 
+	{
+		cout << "\tНаименование детали:  " << object[i].Name << endl;
+		cout << "\tКоличество: " << object[i].Amount << endl;
+		cout << "\tВес: " << object[i].Weight << endl;
+		cout << endl;
 	}
+
+	cout << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+}
+
+void sortStr(const int size, Detail* object) 
+{
+	Detail* pObject[3];					//Array of pointer
+	for (int i = 0; i < size; i++)
+		pObject[i] = (object + i);
 
 	Detail buffer;
 
@@ -142,23 +154,50 @@ void sortStr(const int size, Detail* object) {
 
 void saveInFile(const int size, Detail* object, string fileName) {
 	ofstream fout;
-	
-	fout.open(fileName, ofstream::app);
 
-	for (int i = 0; i < size; i++) {
-		fout.write((char*)object, sizeof(Detail));
-	}
+	fout.open(fileName, ofstream::app);				//Open file + ADD
+
+	for (int i = 0; i < size; i++)
+		fout.write((char*)&object[i], sizeof(Detail));
 
 	fout.close();
-	cout << "Данные сохранены в файле!" << endl;
+	cout << "\tДАННЫЕ СОХРАНЕНЫ В ФАЙЛ!" << endl;
 }
 
 void readFromFile(const int size, Detail* object, string fileName) {
-	ifstream fin;
-	int i = 0;
+	if (isFileEmpty(fileName) == false) {
+		ifstream fin;
+		fin.open(fileName);
 
-	while (fin.read((char*)&object[i], sizeof(Detail)))	i++;
+		for (int i = 0; i < size; i++)
+			fin.read((char*)&object[i], sizeof(Detail));
 
-	fin.close();
-	cout << "Данные из файла получены!" << endl;
+		fin.close();
+		cout << "\t ДАННЫЕ ИЗ ФАЙЛА ПОЛУЧЕНЫ!" << endl;
+	}
+	else {
+		cout << "\tФАЙЛ ПУСТ!" << endl;
+	}
+}
+
+void clearFile(string fileName) {
+	fstream file(fileName, ios::out);
+	file.close();
+	cout << "\tФАЙЛ ОЧИЩЕН!" << endl;
+}
+
+bool isFileEmpty(string fileName) 
+{
+	int length;
+	ifstream filestr;
+
+	filestr.open(fileName, ios::binary); 
+	filestr.seekg(0, ios::end);				//Put cursor of end file
+	length = filestr.tellg();				//Find position of cursor
+	filestr.close();
+
+	if (length == 0) {
+		return true;
+	}
+	else return false;
 }
