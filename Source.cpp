@@ -6,32 +6,37 @@
 using namespace std;
 
 struct Detail {
-	string Name;
+	string Name = "";
 	int Amount = 0;
 	int Weight = 0;
 };
 
+const int sizeArr = 10;
 
-
-void inputArr(const int size, Detail* object);
-void outArr(const int size, Detail* object);
-void sortStr(const int size, Detail* object);
-void saveInFile(const int size, Detail* object, string fileName);
-void readFromFile(const int size, Detail* object, string fileName);
+void inputArr(Detail* object);
+void inputArr(Detail* object, int number);
+void outArr(Detail* object);
+void outArr(Detail* object, int number);
+void sortStr(Detail* object);
+void saveInFile(Detail* object, string fileName);
+void readFromFile(Detail* object, string fileName);
 void clearFile(string fileName);
 bool isFileEmpty(string fileName);
 
 
-void menu(int *key, const int size, Detail* object, string fileName) 
+
+void menu(int *key, Detail* object, string fileName) 
 {
 	cout << endl << "Выберите пункт меню:" << endl;
 	cout << "   1.Ввод записей" << endl;
 	cout << "   2.Вывод записей" << endl;
-	cout << "   3.Сортировка записей (по весу) порядке убывания" << endl;
-	cout << "   4.Вывод всех записей в отсортированном порядке на экран" << endl;
-	cout << "   5.Сохранение всех записей в файле" << endl;
-	cout << "   6.Чтение записей из файла" << endl;
-	cout << "   7.Очистить файл" << endl;
+	cout << "   3.Ввод записи в определенный номер" << endl;
+	cout << "   4.Вывод записи с определенным номером" << endl;
+	cout << "   5.Сортировка записей (по весу) в порядке убывания" << endl;
+	cout << "   6.Вывод всех записей в отсортированном порядке на экран" << endl;
+	cout << "   7.Сохранение всех записей в файле" << endl;
+	cout << "   8.Чтение записей из файла" << endl;
+	cout << "   9.Очистить файл" << endl;
 	cout << "Для выхода введите 0" << endl;
 
 	cout << "Пункт: ";
@@ -40,37 +45,55 @@ void menu(int *key, const int size, Detail* object, string fileName)
 
 	switch (*key) {
 		case 1: 
-			inputArr(size, object);
+			inputArr(object);
 			break;
 
 		case 2: 
-			outArr(size, object);
+			outArr(object);
 			break;
 
-		case 3: 
-			sortStr(size, object);
+		case 3:
+			cout << "Какую деталь вы хотите заменить?: ";
+			int number1;
+			cin >> number1;
+			inputArr(object, number1);
 			break;
 
-		case 4: 
-			sortStr(size, object);
-			outArr(size, object);
+		case 4:
+			cout << "Деталь под каким номером вы хотите вывести?: ";
+			int number;
+			cin >> number;
+			outArr(object, number);
 			break;
 
 		case 5: 
-			saveInFile(size, object, fileName);
+			sortStr(object);
 			break;
 
 		case 6: 
-			readFromFile(size, object, fileName);
+			sortStr(object);
+			outArr(object);
 			break;
 
-		case 7:
+		case 7: 
+			saveInFile(object, fileName);
+			break;
+
+		case 8: 
+			readFromFile(object, fileName);
+			break;
+
+		case 9:
 			clearFile(fileName);
 			cout << "\tФАЙЛ ОЧИЩЕН!" << endl;
 			break;
 
 		case 0:
-			exit;
+			break;
+
+		default:
+			cout << "Выбранного пукнта нет в меню!" << endl;
+			menu(key, object, fileName);
 	}
 }
 
@@ -79,66 +102,133 @@ void main() {
 	SetConsoleOutputCP(1251);
 
 	int key = -1;
-	const int size = 3;
 	string fileName = "myFile.txt";
 
-	Detail object[size];
+	Detail object[sizeArr];
 
 	while (key != 0)
-		menu(&key, size, object, fileName);
+		menu(&key,object, fileName);
 }
 
-void inputArr(const int size, Detail *object) 
+void inputArr(Detail *object) 
 {
-	cout << endl << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
-	cout  << "Введите детали:" << endl;
+	int i = 0, endOfArr = 0, number;
 
-	for (int i = 0; i < size; i++)
+	while (object[endOfArr].Name != "")
+		endOfArr++;
+		
+
+	cout << endl << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+	cout << "Сколько записей вы хотите ввести?: ";
+
+	cin >> number;
+	cout  << "Введите детали:" << endl;
+	
+	for (endOfArr, i = 0; i < number; endOfArr++, i++)
 	{
+		cout << "[ID " << i + 1 << "]";
 		cout << "\tНаименование детали: ";
-		cin >> object[i].Name;
+		cin >> object[endOfArr].Name;
 
 		cout << "\tКоличество: ";
-		cin >> object[i].Amount;
+		cin >> object[endOfArr].Amount;
 
 		cout << "\tВес: ";
-		cin >> object[i].Weight;
+		cin >> object[endOfArr].Weight;
 		cout << endl;
 	}
-
+		
 	cout << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
 }
-
-void outArr(const int size, Detail* object) 
+void inputArr(Detail* object, int number)
 {
+	if (number <= sizeArr && number > 0) {
+		cout << endl << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+		cout << "[ID " << number << "]";
+		cout << "Введите деталь:" << endl;
+
+		
+		cout << "\tНаименование детали: ";
+		cin >> object[number - 1].Name;
+
+		cout << "\tКоличество: ";
+		cin >> object[number - 1].Amount;
+
+		cout << "\tВес: ";
+		cin >> object[number - 1].Weight;
+		cout << endl;
+
+		cout << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+	}
+	else {
+		cout << "Записи с таким номером не существует!" << endl;
+		return;
+	}
+
+	if (object[number - 2].Name == "") {
+		int endOfArr = 0;
+		while (object[endOfArr].Name != "")
+			endOfArr++;
+
+		Detail buffer;
+		buffer = object[endOfArr];
+		object[endOfArr] = object[number - 1];
+		object[number - 1] = buffer;
+	}
+}
+
+void outArr(Detail* object)
+{
+	int i = 0;
 	cout << endl << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
 	cout << "Вывод деталей:" << endl;
 
-	for (int i = 0; i < size; i++) 
-	{
+	while (object[i].Name != "") {
+		cout << "[ID " << i + 1 << "]";
 		cout << "\tНаименование детали:  " << object[i].Name << endl;
 		cout << "\tКоличество: " << object[i].Amount << endl;
 		cout << "\tВес: " << object[i].Weight << endl;
 		cout << endl;
+
+		i++;
 	}
 
 	cout << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
 }
-
-void sortStr(const int size, Detail* object) 
+void outArr(Detail* object, int number) 
 {
-	Detail* pObject[3];					//Array of pointer
-	for (int i = 0; i < size; i++)
+	if (number <= sizeArr && number > 0 && object[number - 1].Name != "")
+	{
+		cout << endl << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+		cout << "Вывод детали:" << endl;
+
+		cout << "[ID " << number << "]";
+		cout << "\tНаименование детали:  " << object[number - 1].Name << endl;
+		cout << "\tКоличество: " << object[number - 1].Amount << endl;
+		cout << "\tВес: " << object[number - 1].Weight << endl;
+		cout << endl;
+
+		cout << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+	}
+	else {
+		cout << "Запись пуста, либо записи не существует!" << endl;
+	}
+}
+
+void sortStr(Detail* object) 
+{
+	Detail* pObject[sizeArr];					//Array of pointer
+	for (int i = 0; i < sizeArr; i++)
 		pObject[i] = (object + i);
 
 	Detail buffer;
 
 	bool isSwap = false;
 
-	for (int i = 0; i < size - 1; i++)
+	for (int i = 0; i < sizeArr - 1; i++)
 	{
 		bool isSwap = false;
-		for (int j = 0; j < size - 1 - i; j++)
+		for (int j = 0; j < sizeArr - 1 - i; j++)
 		{
 			if (object[j].Weight < object[j + 1].Weight) {
 				buffer = *(pObject[j]);
@@ -153,25 +243,25 @@ void sortStr(const int size, Detail* object)
 	cout << "Массив отсортирован!" << endl;
 }
 
-void saveInFile(const int size, Detail* object, string fileName) {
+void saveInFile(Detail* object, string fileName) { //Починить
 	clearFile(fileName);
 	ofstream fout;
 
 	fout.open(fileName, ofstream::app);				//Open file + ADD
 
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < sizeArr; i++)
 		fout.write((char*)&object[i], sizeof(Detail));
 
 	fout.close();
 	cout << "\tДАННЫЕ СОХРАНЕНЫ В ФАЙЛ!" << endl;
 }
 
-void readFromFile(const int size, Detail* object, string fileName) {
+void readFromFile(Detail* object, string fileName) {
 	if (isFileEmpty(fileName) == false) {
 		ifstream fin;
 		fin.open(fileName);
 
-		for (int i = 0; i < size; i++)
+		for (int i = 0; i < sizeArr; i++)
 			fin.read((char*)&object[i], sizeof(Detail));
 
 		fin.close();
