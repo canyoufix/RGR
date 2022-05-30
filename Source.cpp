@@ -66,6 +66,7 @@ void menu(int *key, const int size, Detail* object, string fileName)
 
 		case 7:
 			clearFile(fileName);
+			cout << "\tÔÀÉË Î×ÈÙÅÍ!" << endl;
 			break;
 
 		case 0:
@@ -153,6 +154,7 @@ void sortStr(const int size, Detail* object)
 }
 
 void saveInFile(const int size, Detail* object, string fileName) {
+	clearFile(fileName);
 	ofstream fout;
 
 	fout.open(fileName, ofstream::app);				//Open file + ADD
@@ -183,7 +185,6 @@ void readFromFile(const int size, Detail* object, string fileName) {
 void clearFile(string fileName) {
 	fstream file(fileName, ios::out);
 	file.close();
-	cout << "\tÔÀÉË Î×ÈÙÅÍ!" << endl;
 }
 
 bool isFileEmpty(string fileName) 
