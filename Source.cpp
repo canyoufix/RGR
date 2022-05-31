@@ -11,7 +11,7 @@ struct Detail {
 	int Weight = 0;
 };
 
-const int sizeArr = 10;
+const int sizeArr = 20;
 
 void inputArr(Detail* object);
 void inputArr(Detail* object, int number);
@@ -22,6 +22,8 @@ void saveInFile(Detail* object, string fileName);
 void readFromFile(Detail* object, string fileName);
 void clearFile(string fileName);
 bool isFileEmpty(string fileName);
+int numOfArrElem(Detail* object);
+bool isCheckEror(Detail* object, int endIndex);
 
 
 
@@ -112,29 +114,31 @@ void main() {
 
 void inputArr(Detail *object) 
 {
-	int i = 0, endOfArr = 0, number;
+	int i = 0, number;
 
-	while (object[endOfArr].Name != "")
-		endOfArr++;
-		
+	int endIndex = numOfArrElem(object);
 
 	cout << endl << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
 	cout << "Сколько записей вы хотите ввести?: ";
 
 	cin >> number;
 	cout  << "Введите детали:" << endl;
-	
-	for (endOfArr, i = 0; i < number; endOfArr++, i++)
+
+	for (endIndex, i = 0; i < number; endIndex++, i++)
 	{
-		cout << "[ID " << i + 1 << "]";
+		cout << "[ID " << endIndex + 1 << "]";
 		cout << "\tНаименование детали: ";
-		cin >> object[endOfArr].Name;
+		cin >> object[endIndex].Name;
 
 		cout << "\tКоличество: ";
-		cin >> object[endOfArr].Amount;
+		cin >> object[endIndex].Amount;
+		while (isCheckEror(object, endIndex) != false)
+			cin >> object[endIndex].Amount;
 
 		cout << "\tВес: ";
-		cin >> object[endOfArr].Weight;
+		cin >> object[endIndex].Weight;
+		while (isCheckEror(object, endIndex) != false)
+			cin >> object[endIndex].Weight;
 		cout << endl;
 	}
 		
@@ -153,9 +157,14 @@ void inputArr(Detail* object, int number)
 
 		cout << "\tКоличество: ";
 		cin >> object[number - 1].Amount;
+		while (isCheckEror(object, number - 1) != false)
+			cin >> object[number - 1].Amount;
 
 		cout << "\tВес: ";
 		cin >> object[number - 1].Weight;
+		while (isCheckEror(object, number - 1) != false)
+			cin >> object[number - 1].Weight;
+
 		cout << endl;
 
 		cout << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
@@ -166,13 +175,12 @@ void inputArr(Detail* object, int number)
 	}
 
 	if (object[number - 2].Name == "") {
-		int endOfArr = 0;
-		while (object[endOfArr].Name != "")
-			endOfArr++;
+		int endIndex = 0;
+		endIndex = numOfArrElem(object);
 
 		Detail buffer;
-		buffer = object[endOfArr];
-		object[endOfArr] = object[number - 1];
+		buffer = object[endIndex];
+		object[endIndex] = object[number - 1];
 		object[number - 1] = buffer;
 	}
 }
@@ -180,20 +188,27 @@ void inputArr(Detail* object, int number)
 void outArr(Detail* object)
 {
 	int i = 0;
-	cout << endl << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
-	cout << "Вывод деталей:" << endl;
 
-	while (object[i].Name != "") {
-		cout << "[ID " << i + 1 << "]";
-		cout << "\tНаименование детали:  " << object[i].Name << endl;
-		cout << "\tКоличество: " << object[i].Amount << endl;
-		cout << "\tВес: " << object[i].Weight << endl;
-		cout << endl;
-
-		i++;
+	if (object[i].Name == "") {
+		cout << "\tСписок пуст!" << endl;
 	}
+	else 
+	{
+		cout << endl << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+		cout << "Вывод деталей:" << endl;
 
-	cout << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+		while (object[i].Name != "") 
+		{
+			cout << "[ID " << i + 1 << "]";
+			cout << "\tНаименование детали:  " << object[i].Name << endl;
+			cout << "\tКоличество: " << object[i].Amount << endl;
+			cout << "\tВес: " << object[i].Weight << endl;
+			cout << endl;
+
+			i++;
+		}
+		cout << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+	}
 }
 void outArr(Detail* object, int number) 
 {
@@ -243,13 +258,16 @@ void sortStr(Detail* object)
 	cout << "Массив отсортирован!" << endl;
 }
 
-void saveInFile(Detail* object, string fileName) { //Починить
+void saveInFile(Detail* object, string fileName) {
 	clearFile(fileName);
 	ofstream fout;
 
-	fout.open(fileName, ofstream::app);				//Open file + ADD
+	fout.open(fileName);				//Open file + NoAdd
 
-	for (int i = 0; i < sizeArr; i++)
+	int endIndex;
+	endIndex = numOfArrElem(object);
+
+	for (int i = 0; i <= endIndex; i++)
 		fout.write((char*)&object[i], sizeof(Detail));
 
 	fout.close();
@@ -300,4 +318,27 @@ bool isFileEmpty(string fileName)
 	{
 		return true;
 	}
+}
+
+int numOfArrElem(Detail* object) {
+	int numOfElem = 0;
+	while (object[numOfElem].Name != "")
+		numOfElem++;
+
+	return numOfElem;
+}
+
+bool isCheckEror(Detail* object, int endIndex) {
+	if (cin.fail() == 0) {
+		return false;
+	}
+	else {
+		while (cin.fail()) 
+		{
+			cin.clear();
+			cin.ignore(cin.rdbuf()->in_avail());
+			cout << "\t\tВведенно неверное значение, повторите ввод: ";
+		}
+	}
+	return true;
 }
