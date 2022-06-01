@@ -6,12 +6,12 @@
 using namespace std;
 
 struct Detail {
-	string Name = "";
-	int Amount = 0;
-	int Weight = 0;
+	char Name[25];
+	int Amount = -1;
+	float Weight = 0.0;
 };
 
-const int sizeArr = 20;
+const int sizeArr = 10;
 
 void inputArr(Detail* object);
 void inputArr(Detail* object, int number);
@@ -23,7 +23,7 @@ void readFromFile(Detail* object, string fileName);
 void clearFile(string fileName);
 bool isFileEmpty(string fileName);
 int numOfArrElem(Detail* object);
-bool isCheckEror(Detail* object, int endIndex);
+bool isCheckEror();
 
 
 
@@ -45,12 +45,13 @@ void menu(int *key, Detail* object, string fileName)
 	cin >> *key;
 	cout << endl;
 
-	switch (*key) {
-		case 1: 
+	if (isCheckEror() == false) {
+		switch (*key) {
+		case 1:
 			inputArr(object);
 			break;
 
-		case 2: 
+		case 2:
 			outArr(object);
 			break;
 
@@ -68,20 +69,20 @@ void menu(int *key, Detail* object, string fileName)
 			outArr(object, number);
 			break;
 
-		case 5: 
+		case 5:
 			sortStr(object);
 			break;
 
-		case 6: 
+		case 6:
 			sortStr(object);
 			outArr(object);
 			break;
 
-		case 7: 
+		case 7:
 			saveInFile(object, fileName);
 			break;
 
-		case 8: 
+		case 8:
 			readFromFile(object, fileName);
 			break;
 
@@ -96,6 +97,10 @@ void menu(int *key, Detail* object, string fileName)
 		default:
 			cout << "Выбранного пукнта нет в меню!" << endl;
 			menu(key, object, fileName);
+		}
+	}
+	else {
+		menu(key, object, fileName);
 	}
 }
 
@@ -109,7 +114,7 @@ void main() {
 	Detail object[sizeArr];
 
 	while (key != 0)
-		menu(&key,object, fileName);
+		menu(&key, object, fileName);
 }
 
 void inputArr(Detail *object) 
@@ -122,27 +127,39 @@ void inputArr(Detail *object)
 	cout << "Сколько записей вы хотите ввести?: ";
 
 	cin >> number;
-	cout  << "Введите детали:" << endl;
 
-	for (endIndex, i = 0; i < number; endIndex++, i++)
-	{
-		cout << "[ID " << endIndex + 1 << "]";
-		cout << "\tНаименование детали: ";
-		cin >> object[endIndex].Name;
-
-		cout << "\tКоличество: ";
-		cin >> object[endIndex].Amount;
-		while (isCheckEror(object, endIndex) != false)
-			cin >> object[endIndex].Amount;
-
-		cout << "\tВес: ";
-		cin >> object[endIndex].Weight;
-		while (isCheckEror(object, endIndex) != false)
-			cin >> object[endIndex].Weight;
-		cout << endl;
+	if (number <= 0) {
+		cout << "\t Неверное значение!" << endl;
 	}
-		
-	cout << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+	else {
+		cout << endl << "Введите детали:" << endl;
+
+		for (endIndex, i = 0; i < number; endIndex++, i++)
+		{
+			cout << "[ID " << endIndex + 1 << "]";
+			cout << "\tНаименование детали: ";
+			cin.ignore();
+			cin.getline(object[endIndex].Name, 25);
+
+			cout << "\tКоличество: ";
+			cin >> object[endIndex].Amount;
+			while (isCheckEror() != false || object[endIndex].Amount < 0) {
+				cout << "\t\tНовое значение: ";
+				cin >> object[endIndex].Amount;
+			}
+
+			cout << "\tВес: ";
+			cin >> object[endIndex].Weight;
+			while (isCheckEror() != false || object[endIndex].Weight <= 0) {
+				cout << "\t\tНовое значение: ";
+				cin >> object[endIndex].Weight;
+			}
+
+			cout << endl;
+		}
+
+		cout << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
+	}
 }
 void inputArr(Detail* object, int number)
 {
@@ -153,17 +170,21 @@ void inputArr(Detail* object, int number)
 
 		
 		cout << "\tНаименование детали: ";
-		cin >> object[number - 1].Name;
+		cin.ignore();
+		cin.getline(object[number - 1].Name, 25);
 
 		cout << "\tКоличество: ";
 		cin >> object[number - 1].Amount;
-		while (isCheckEror(object, number - 1) != false)
+		while (isCheckEror() != false || object[number - 1].Amount < 0) {
+			cout << "\t\tНовое значение: ";
 			cin >> object[number - 1].Amount;
+		}
 
 		cout << "\tВес: ";
-		cin >> object[number - 1].Weight;
-		while (isCheckEror(object, number - 1) != false)
+		while (isCheckEror() != false || object[number - 1].Weight <= 0) {
+			cout << "\t\tНовое значение: ";
 			cin >> object[number - 1].Weight;
+		}
 
 		cout << endl;
 
@@ -189,7 +210,7 @@ void outArr(Detail* object)
 {
 	int i = 0;
 
-	if (object[i].Name == "") {
+	if (object[i].Amount == -1) {
 		cout << "\tСписок пуст!" << endl;
 	}
 	else 
@@ -197,7 +218,7 @@ void outArr(Detail* object)
 		cout << endl << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
 		cout << "Вывод деталей:" << endl;
 
-		while (object[i].Name != "") 
+		while (object[i].Amount != -1)
 		{
 			cout << "[ID " << i + 1 << "]";
 			cout << "\tНаименование детали:  " << object[i].Name << endl;
@@ -267,7 +288,7 @@ void saveInFile(Detail* object, string fileName) {
 	int endIndex;
 	endIndex = numOfArrElem(object);
 
-	for (int i = 0; i <= endIndex; i++)
+	for (int i = 0; i < endIndex; i++)
 		fout.write((char*)&object[i], sizeof(Detail));
 
 	fout.close();
@@ -279,8 +300,10 @@ void readFromFile(Detail* object, string fileName) {
 		ifstream fin;
 		fin.open(fileName);
 
-		for (int i = 0; i < sizeArr; i++)
-			fin.read((char*)&object[i], sizeof(Detail));
+		int i = 0;
+		while (fin.read((char*)&object[i], sizeof(Detail))) {
+			i++;
+		}
 
 		fin.close();
 		cout << "\t ДАННЫЕ ИЗ ФАЙЛА ПОЛУЧЕНЫ!" << endl;
@@ -322,13 +345,14 @@ bool isFileEmpty(string fileName)
 
 int numOfArrElem(Detail* object) {
 	int numOfElem = 0;
-	while (object[numOfElem].Name != "")
+	while (object[numOfElem].Amount != -1)
 		numOfElem++;
 
 	return numOfElem;
 }
 
-bool isCheckEror(Detail* object, int endIndex) {
+bool isCheckEror() 
+{
 	if (cin.fail() == 0) {
 		return false;
 	}
@@ -337,8 +361,8 @@ bool isCheckEror(Detail* object, int endIndex) {
 		{
 			cin.clear();
 			cin.ignore(cin.rdbuf()->in_avail());
-			cout << "\t\tВведенно неверное значение, повторите ввод: ";
+			cout << "\t\tВведенно неверное значение, повторите ввод.";
 		}
+		return true;
 	}
-	return true;
 }
