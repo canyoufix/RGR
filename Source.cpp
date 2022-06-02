@@ -196,7 +196,7 @@ void inputArr(Detail* object, int number)
 		return;
 	}
 
-	if (object[number - 2].Name == "") {
+	if (object[number - 2].Amount == -1) {
 		int endIndex = 0;
 		endIndex = numOfArrElem(object);
 
@@ -234,7 +234,7 @@ void outArr(Detail* object)
 }
 void outArr(Detail* object, int number) 
 {
-	if (number <= sizeArr && number > 0 && object[number - 1].Name != "")
+	if (number <= sizeArr && number > 0 && object[number - 1].Amount != -1)
 	{
 		cout << endl << "\t... ... ... ... ... ... ... ... ... ... ..." << endl;
 		cout << "Вывод детали:" << endl;
