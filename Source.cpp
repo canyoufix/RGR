@@ -181,6 +181,7 @@ void inputArr(Detail* object, int number)
 		}
 
 		cout << "\tВес: ";
+		cin >> object[number - 1].Weight;
 		while (isCheckEror() != false || object[number - 1].Weight <= 0) {
 			cout << "\t\tНовое значение: ";
 			cin >> object[number - 1].Weight;
